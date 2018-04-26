@@ -19,11 +19,25 @@ Rafael Calvo | Victor Franchis | Javier Levio
 
 ### Desarrollo:
 
-AAAA
+Inicialmente se importa la librería RMongo y nos conectamos a la BD
+```{r}
+library(RMongo)
+mongo = mongoDbConnect("test", "localhost", 27017)
 
+# insertar un documento
+output <- dbInsertDocument(mongo, "test_data", '{"foo": "bar"}')
 
+# queries
+# buscar docs con atributo 'foo' de valor 'bar'
+output <- dbGetQuery(mongo, "test_data", '{"foo": "bar"}')
+output <- dbGetQueryForKeys(mongo, "test_data", 
+                                    '{"foo": "bar"}', '{"foo": 1}')
+# Cerrar conexión a BD
+dbDisconnect(mongo)
 
-
+# si no cabe espacio en la memoria se puede editar el 'heap space' para que acepte mayores tamaños
+options( java.parameters = "-Xmx2g" )
+```
 
 ### Textos de ejemplo:
 
