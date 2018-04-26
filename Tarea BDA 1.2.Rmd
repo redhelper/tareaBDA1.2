@@ -8,17 +8,18 @@ Rafael Calvo | Victor Franchis | Javier Levio
 --- | --- | ---
 201273506-8 | 201273566-1 | 201273598-k
 
-Desarrollo
-¿Cuáles son los 5 países con los mejores vinos rankeados promedio?
-¿Cuáles son los términos descriptivos a los que más se hacen alusión?
-Posibles relacioneséntreéllos.
-¿Qué términos son los m ́as comunesén 3 cepas de vino distintas?
-Generar una nube de palabras con los N términos m ́as comunes.
-¿Es posible identificar
-clusters
-de alg ́un tipoéntre los datos analizados?
+### Preguntas:
 
+- ¿Cuáles son los 5 países con los mejores vinos rankeados promedio?
+- ¿Cuáles son los términos descriptivos a los que más se hacen alusión?
+- Posibles relaciones entre ellos.
+- ¿Qué términos son los más comunes en 3 cepas de vino distintas?
+- Generar una nube de palabras con los N términos más comunes.
+- ¿Es posible identificar clusters de algún tipo entre los datos analizados?
 
+### Desarrollo:
+
+AAAA
 
 
 
@@ -26,9 +27,9 @@ de alg ́un tipoéntre los datos analizados?
 
 ### Textos de ejemplo:
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+Este es un  [enlace](http://rmarkdown.rstudio.com) de ejemplo.
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+Try executing this chunk by clicking the **Run** button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 ```{r}
 plot(cars)
@@ -38,4 +39,3 @@ Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by press
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
 
-1313 test uwu AAAAAAAAAAAAAAAAA
