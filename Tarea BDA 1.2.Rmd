@@ -11,7 +11,7 @@ Rafael Calvo | Victor Franchis | Javier Levio
 ### Preguntas:
 
 - ¿Cuáles son los 5 países con los mejores vinos rankeados promedio?
-- ¿Cuáles son los términos descriptivos a los que más se hacen alusiÃ³n?
+- ¿Cuáles son los términos descriptivos a los que más se hacen alusión?
 - Posibles relaciones entre ellos.
 - ¿Qué términos son los más comunes en 3 cepas de vino distintas?
 - Generar una nube de palabras con los N términos más comunes.
@@ -27,42 +27,180 @@ mongo
 ```
 Para probar si funciona se realizará una consulta a los vinos con 100 puntos.
 ```{r}
-example = dbGetQuery(mongo, "wines_col", '{"points": "100"}')
-print(example["country"], quote = TRUE, row.names = FALSE)
+example = dbGetQuery(mongo, "wines_col", '{"country": "Italy"}')
+print(example, quote = TRUE, row.names = FALSE)
 ```
 
+### ¿Cuáles son los términos descriptivos a los que más se hacen alusión?
+Se realiza una consulta similar a la inicial para obtener todas las descripciones:
+```{r}
+library(tm)
+collection = dbGetQuery(mongo, "wines_col", '')
+# todas las descripciones:
+descriptions = collection["description"][[1]]
+#descriptions
+# se juntan todas las descripciones en un solo gran texto
+docs = Corpus(VectorSource(descriptions))
+docs
+```
 
 ```{r}
+# Inspeccionar el nuevo contenido
+writeLines(as.character(docs[[1]]))
 ```
-
 
 ```{r}
-# insertar un documento
-output <- dbInsertDocument(mongo, "wines_col", '{"foo": "bar"}')
-
-# queries
-# buscar docs con atributo 'foo' de valor 'bar'
-output <- dbGetQuery(mongo, "test_data", '{"foo": "bar"}')
-output <- dbGetQueryForKeys(mongo, "test_data", 
-                                    '{"foo": "bar"}', '{"foo": 1}')
-# Cerrar conexiÃ³n a BD
-dbDisconnect(mongo)
-
-# si no cabe espacio en la memoria se puede editar el 'heap space' para que acepte mayores tamaÃ±os
-options( java.parameters = "-Xmx2g" )
+# Crear un transformador de contenido llamado toSpace: 
+toSpace = content_transformer(function(x, pattern) {return (gsub(pattern, " ", x))}) 
+# Usar el transformador anterior para eliminar comas, dos puntos y otros... 
+docs = tm_map(docs, toSpace, "-") 
+docs = tm_map(docs, toSpace, ":") 
+docs = tm_map(docs, removePunctuation) 
+docs = tm_map(docs, toSpace, "'") 
+docs = tm_map(docs, toSpace, "'") 
+docs = tm_map(docs, toSpace, " - ") 
+docs = tm_map(docs, toSpace, "-") 
+docs = tm_map(docs, toSpace, "\n") 
+docs = tm_map(docs, toSpace, "   ") 
+docs = tm_map(docs, toSpace, "  ") 
+```
+```{r}
+# Inspeccionar el nuevo contenido
+writeLines(as.character(docs[[1]]))
+```
+```{r}
+# Transformar a minúsculas 
+docs = tm_map(docs,content_transformer(tolower)) 
+# Eliminar dígitos 
+docs = tm_map(docs, removeNumbers) 
+# Remover stopwords usando la lista estándar de tm 
+docs = tm_map(docs, removeWords, stopwords("english")) 
+# Borrar todos los espacios en blanco extraños 
+docs = tm_map(docs, stripWhitespace) 
+# Inspeccionar el nuevo contenido del documento antes visto 
+writeLines(as.character(docs[[1]])) 
+```
+Usar el siguiente cuadro para revisar otras descripciones filtradas:
+```{r}
+# Inspeccionar el nuevo contenido
+writeLines(as.character(docs[[2]]))
 ```
 
-### Textos de ejemplo:
+*por ahora no se usará stemming, se pasa directo a la construcción de una matriz*
 
-Este es un  [enlace](http://rmarkdown.rstudio.com) de ejemplo.
+Se construye una matriz de documentos y términos:
+```{r}
+dtm= DocumentTermMatrix(docs)
+dtm 
+```
+```{r}
+# Revisando el contenido
+inspect(dtm[10:15,1:7]) 
+```
+### Análisis Cuantitativo de Texto 
+```{r}
+# Contar la frecuencia de ocurrencia de cada palabra en el corpus
+# ...es decir sumar todas las filas y mostrar las sumas de cada columna 
+freq = colSums(as.matrix(dtm)) 
+# Validar que la dimensión de la variable freq es igual al número de términos
+length(freq) 
+```
+```{r}
+# Ordenar las frecuencias
+ord = order(freq,decreasing=TRUE) 
+# Listar los términos más frecuentes 
+freq[head(ord)]
+```
+```{r}
+# Retornar todos los términos presente más de 80 veces en el corpus entero 
+# Notar que el resultado está ordenado alfabéticamente, no por frecuencia 
+freq.terms = findFreqTerms(dtm,lowfreq=80) 
+freq.terms 
+```
 
-Try executing this chunk by clicking the **Run** button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+### Gráficos
+```{r}
+library(stringi) 
+library(ggplot2) 
+library(Rcpp)
+```
+```{r}
+# Crear un marco de datos, con columnas de igual largo 
+wf = data.frame(term=names(freq),occurrences=freq) 
+# Dibujar términos que aparecen más de 150 veces 
+p = ggplot(subset(wf, freq>150), aes(term, occurrences)) 
+# "Identity" asegura que la altura de cada barra es proporcional al valor del datos mapeado en el eje y
+p = p + geom_bar(stat="identity") 
+# Especificar que las etiquetas del eje x se muestren en un ángulo de 45 grados y horizon- 
+# talmente justificada (chequear si no fuera así, es decir: angle = 0). 
+p = p + theme(axis.text.x=element_text(angle=45, hjust=1)) 
+p 
+```
 
 ```{r}
-plot(cars)
+# De ser necesario, seleccionar repositorio: BioC software, para esta sección 
+# https://www.bioconductor.org/packages/release/bioc/html/graph.html
+source("https://bioconductor.org/biocLite.R")
+biocLite("graph")
+source("https://bioconductor.org/biocLite.R")
+biocLite("Rgraphviz")
+
+```
+```{r}
+#library(graph) 
+library(Rgraphviz) 
+# Dibujar relaciones entre términos que tengan una frecuencia no menor a 160 
+freq.terms = findFreqTerms(dtm,lowfreq=160) 
+plot(dtm, term = freq.terms, corThreshold = 0.12, weighting = T) 
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+```{r}
+library(wordcloud) 
+library(RColorBrewer) 
+```
+```{r}
+# Setear un valor semilla 
+set.seed(42) 
+# Nube de palabras en colores; palabras con frecuencia mínima de 70 
+wordcloud(names(freq), freq,min.freq=70,colors=brewer.pal(6,"Dark2")) 
+```
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+### Clustering
+#### hay que jugar con el "sparse" para cambiar la cantidad de palabras, mientras más grande, más aparecen
+```{r}
+dtmr2 = removeSparseTerms(dtm, sparse = 0.8) 
+inspect(dtmr2)
+```
+```{r}
+library(cluster) 
+distMatrix = dist(t(dtmr2), method = "manhattan")# probar con otros métodos 
+fit = hclust(distMatrix, method = "complete")# probar con otros métodos 
+# Dendrograma 
+plot(fit, cex=0.9, hang=-1, main = "Dendrograma de Clusters de Palabras") 
+rect.hclust(fit, k = 4, border="green") 
+```
+
+b) Clustering por particionamiento usando Kmeans 
+Se puede jugar con el nroClusters y al correrlo varias veces cambia
+```{r}
+library(fpc) 
+nroClusters = 3
+kfit = kmeans(distMatrix, nroClusters) 
+clusplot(as.matrix(distMatrix), kfit$cluster, color=T, shade=T, labels=2, lines=0) 
+```
+
+```{r}
+# Para chequear palabras representativas dentro de cada cluster
+for (i in 1: nroClusters) 
+{ 
+  cat(paste("cluster ", i, ": ", sep = "")) 
+  s = sort(kfit$centers[i,], decreasing = T) 
+  cat(names(s)[1:5], "\n") 
+} 
+```
+
+
+
+
 
