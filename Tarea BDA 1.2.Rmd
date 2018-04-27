@@ -10,22 +10,35 @@ Rafael Calvo | Victor Franchis | Javier Levio
 
 ### Preguntas:
 
-- Â¿CuÃ¡les son los 5 paÃ­ses con los mejores vinos rankeados promedio?
-- Â¿CuÃ¡les son los tÃ©rminos descriptivos a los que mÃ¡s se hacen alusiÃ³n?
+- ¿Cuáles son los 5 países con los mejores vinos rankeados promedio?
+- ¿Cuáles son los términos descriptivos a los que más se hacen alusiÃ³n?
 - Posibles relaciones entre ellos.
-- Â¿QuÃ© tÃ©rminos son los mÃ¡s comunes en 3 cepas de vino distintas?
-- Generar una nube de palabras con los N tÃ©rminos mÃ¡s comunes.
-- Â¿Es posible identificar clusters de algÃºn tipo entre los datos analizados?
+- ¿Qué términos son los más comunes en 3 cepas de vino distintas?
+- Generar una nube de palabras con los N términos más comunes.
+- ¿Es posible identificar clusters de algún tipo entre los datos analizados?
 
 ### Desarrollo:
 
-Inicialmente se importa la librerÃ­a RMongo y nos conectamos a la BD
+Inicialmente se importa la librería RMongo y nos conectamos a la BD "*BDA*". Recordar que esta fue creada en la parte 1.1 de pa tarea con la colección "*wines_col*".
 ```{r}
 library(RMongo)
-mongo = mongoDbConnect("test", "localhost", 27017)
+mongo = mongoDbConnect("BDA", "localhost", 27017)
+mongo
+```
+Para probar si funciona se realizará una consulta a los vinos con 100 puntos.
+```{r}
+example = dbGetQuery(mongo, "wines_col", '{"points": "100"}')
+print(example["country"], quote = TRUE, row.names = FALSE)
+```
 
+
+```{r}
+```
+
+
+```{r}
 # insertar un documento
-output <- dbInsertDocument(mongo, "test_data", '{"foo": "bar"}')
+output <- dbInsertDocument(mongo, "wines_col", '{"foo": "bar"}')
 
 # queries
 # buscar docs con atributo 'foo' de valor 'bar'

@@ -195,7 +195,7 @@ $(document).ready(function () {
 <h3>Preguntas:</h3>
 <ul>
 <li>¿Cuáles son los 5 países con los mejores vinos rankeados promedio?</li>
-<li>¿Cuáles son los términos descriptivos a los que más se hacen alusión?</li>
+<li>¿Cuáles son los términos descriptivos a los que más se hacen alusiÃ³n?</li>
 <li>Posibles relaciones entre ellos.</li>
 <li>¿Qué términos son los más comunes en 3 cepas de vino distintas?</li>
 <li>Generar una nube de palabras con los N términos más comunes.</li>
@@ -204,25 +204,44 @@ $(document).ready(function () {
 </div>
 <div id="desarrollo" class="section level3">
 <h3>Desarrollo:</h3>
-<p>Inicialmente se importa la librería RMongo y nos conectamos a la BD</p>
+<p>Inicialmente se importa la librería RMongo y nos conectamos a la BD “<em>BDA</em>”. Recordar que esta fue creada en la parte 1.1 de pa tarea con la colección “<em>wines_col</em>”.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShSTW9uZ28pXG5tb25nbyA9IG1vbmdvRGJDb25uZWN0KFwidGVzdFwiLCBcImxvY2FsaG9zdFwiLCAyNzAxNylcblxuIyBpbnNlcnRhciB1biBkb2N1bWVudG9cbm91dHB1dCA8LSBkYkluc2VydERvY3VtZW50KG1vbmdvLCBcInRlc3RfZGF0YVwiLCAne1wiZm9vXCI6IFwiYmFyXCJ9JylcblxuIyBxdWVyaWVzXG4jIGJ1c2NhciBkb2NzIGNvbiBhdHJpYnV0byAnZm9vJyBkZSB2YWxvciAnYmFyJ1xub3V0cHV0IDwtIGRiR2V0UXVlcnkobW9uZ28sIFwidGVzdF9kYXRhXCIsICd7XCJmb29cIjogXCJiYXJcIn0nKVxub3V0cHV0IDwtIGRiR2V0UXVlcnlGb3JLZXlzKG1vbmdvLCBcInRlc3RfZGF0YVwiLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICd7XCJmb29cIjogXCJiYXJcIn0nLCAne1wiZm9vXCI6IDF9JylcbiMgQ2VycmFyIGNvbmV4acOzbiBhIEJEXG5kYkRpc2Nvbm5lY3QobW9uZ28pXG5cbiMgc2kgbm8gY2FiZSBlc3BhY2lvIGVuIGxhIG1lbW9yaWEgc2UgcHVlZGUgZWRpdGFyIGVsICdoZWFwIHNwYWNlJyBwYXJhIHF1ZSBhY2VwdGUgbWF5b3JlcyB0YW1hw7Fvc1xub3B0aW9ucyggamF2YS5wYXJhbWV0ZXJzID0gXCItWG14MmdcIiApXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShSTW9uZ28pXG5tb25nbyA9IG1vbmdvRGJDb25uZWN0KFwiQkRBXCIsIFwibG9jYWxob3N0XCIsIDI3MDE3KVxubW9uZ29cbmBgYCJ9 -->
 <pre class="r"><code>library(RMongo)
-mongo = mongoDbConnect(&quot;test&quot;, &quot;localhost&quot;, 27017)
-
-# insertar un documento
-output &lt;- dbInsertDocument(mongo, &quot;test_data&quot;, '{&quot;foo&quot;: &quot;bar&quot;}')
+mongo = mongoDbConnect(&quot;BDA&quot;, &quot;localhost&quot;, 27017)
+mongo</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Para probar si funciona se realizará una consulta a los vinos con 100 puntos.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZXhhbXBsZSA9IGRiR2V0UXVlcnkobW9uZ28sIFwid2luZXNfY29sXCIsICd7XCJwb2ludHNcIjogXCIxMDBcIn0nKVxucHJpbnQoZXhhbXBsZVtcImNvdW50cnlcIl0sIHF1b3RlID0gVFJVRSwgcm93Lm5hbWVzID0gRkFMU0UpXG5gYGAifQ== -->
+<pre class="r"><code>example = dbGetQuery(mongo, &quot;wines_col&quot;, '{&quot;points&quot;: &quot;100&quot;}')
+print(example[&quot;country&quot;], quote = TRUE, row.names = FALSE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBpbnNlcnRhciB1biBkb2N1bWVudG9cbm91dHB1dCA8LSBkYkluc2VydERvY3VtZW50KG1vbmdvLCBcIndpbmVzX2NvbFwiLCAne1wiZm9vXCI6IFwiYmFyXCJ9JylcblxuIyBxdWVyaWVzXG4jIGJ1c2NhciBkb2NzIGNvbiBhdHJpYnV0byAnZm9vJyBkZSB2YWxvciAnYmFyJ1xub3V0cHV0IDwtIGRiR2V0UXVlcnkobW9uZ28sIFwidGVzdF9kYXRhXCIsICd7XCJmb29cIjogXCJiYXJcIn0nKVxub3V0cHV0IDwtIGRiR2V0UXVlcnlGb3JLZXlzKG1vbmdvLCBcInRlc3RfZGF0YVwiLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICd7XCJmb29cIjogXCJiYXJcIn0nLCAne1wiZm9vXCI6IDF9JylcbiMgQ2VycmFyIGNvbmV4acODwrNuIGEgQkRcbmRiRGlzY29ubmVjdChtb25nbylcblxuIyBzaSBubyBjYWJlIGVzcGFjaW8gZW4gbGEgbWVtb3JpYSBzZSBwdWVkZSBlZGl0YXIgZWwgJ2hlYXAgc3BhY2UnIHBhcmEgcXVlIGFjZXB0ZSBtYXlvcmVzIHRhbWHDg8Kxb3Ncbm9wdGlvbnMoIGphdmEucGFyYW1ldGVycyA9IFwiLVhteDJnXCIgKVxuYGBgIn0= -->
+<pre class="r"><code># insertar un documento
+output &lt;- dbInsertDocument(mongo, &quot;wines_col&quot;, '{&quot;foo&quot;: &quot;bar&quot;}')
 
 # queries
 # buscar docs con atributo 'foo' de valor 'bar'
 output &lt;- dbGetQuery(mongo, &quot;test_data&quot;, '{&quot;foo&quot;: &quot;bar&quot;}')
 output &lt;- dbGetQueryForKeys(mongo, &quot;test_data&quot;, 
                                     '{&quot;foo&quot;: &quot;bar&quot;}', '{&quot;foo&quot;: 1}')
-# Cerrar conexión a BD
+# Cerrar conexiÃ³n a BD
 dbDisconnect(mongo)
 
-# si no cabe espacio en la memoria se puede editar el 'heap space' para que acepte mayores tamaños
+# si no cabe espacio en la memoria se puede editar el 'heap space' para que acepte mayores tamaÃ±os
 options( java.parameters = &quot;-Xmx2g&quot; )</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
@@ -245,7 +264,7 @@ options( java.parameters = &quot;-Xmx2g&quot; )</code></pre>
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlRhcmVhIDEuMiAtIEJhc2VzIGRlIERhdG9zIEF2YW56YWRhcyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCiMjIEJhc2VzIGRlIGRhdG9zIERvY3VtZW50YWxlcw0KUmFmYWVsIENhbHZvIHwgVmljdG9yIEZyYW5jaGlzIHwgSmF2aWVyIExldmlvDQotLS0gfCAtLS0gfCAtLS0NCjIwMTI3MzUwNi04IHwgMjAxMjczNTY2LTEgfCAyMDEyNzM1OTgtaw0KDQojIyMgUHJlZ3VudGFzOg0KDQotIMK/Q3XDoWxlcyBzb24gbG9zIDUgcGHDrXNlcyBjb24gbG9zIG1lam9yZXMgdmlub3MgcmFua2VhZG9zIHByb21lZGlvPw0KLSDCv0N1w6FsZXMgc29uIGxvcyB0w6lybWlub3MgZGVzY3JpcHRpdm9zIGEgbG9zIHF1ZSBtw6FzIHNlIGhhY2VuIGFsdXNpw7NuPw0KLSBQb3NpYmxlcyByZWxhY2lvbmVzIGVudHJlIGVsbG9zLg0KLSDCv1F1w6kgdMOpcm1pbm9zIHNvbiBsb3MgbcOhcyBjb211bmVzIGVuIDMgY2VwYXMgZGUgdmlubyBkaXN0aW50YXM/DQotIEdlbmVyYXIgdW5hIG51YmUgZGUgcGFsYWJyYXMgY29uIGxvcyBOIHTDqXJtaW5vcyBtw6FzIGNvbXVuZXMuDQotIMK/RXMgcG9zaWJsZSBpZGVudGlmaWNhciBjbHVzdGVycyBkZSBhbGfDum4gdGlwbyBlbnRyZSBsb3MgZGF0b3MgYW5hbGl6YWRvcz8NCg0KIyMjIERlc2Fycm9sbG86DQoNCkluaWNpYWxtZW50ZSBzZSBpbXBvcnRhIGxhIGxpYnJlcsOtYSBSTW9uZ28geSBub3MgY29uZWN0YW1vcyBhIGxhIEJEDQpgYGB7cn0NCmxpYnJhcnkoUk1vbmdvKQ0KbW9uZ28gPSBtb25nb0RiQ29ubmVjdCgidGVzdCIsICJsb2NhbGhvc3QiLCAyNzAxNykNCg0KIyBpbnNlcnRhciB1biBkb2N1bWVudG8NCm91dHB1dCA8LSBkYkluc2VydERvY3VtZW50KG1vbmdvLCAidGVzdF9kYXRhIiwgJ3siZm9vIjogImJhciJ9JykNCg0KIyBxdWVyaWVzDQojIGJ1c2NhciBkb2NzIGNvbiBhdHJpYnV0byAnZm9vJyBkZSB2YWxvciAnYmFyJw0Kb3V0cHV0IDwtIGRiR2V0UXVlcnkobW9uZ28sICJ0ZXN0X2RhdGEiLCAneyJmb28iOiAiYmFyIn0nKQ0Kb3V0cHV0IDwtIGRiR2V0UXVlcnlGb3JLZXlzKG1vbmdvLCAidGVzdF9kYXRhIiwgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAneyJmb28iOiAiYmFyIn0nLCAneyJmb28iOiAxfScpDQojIENlcnJhciBjb25leGnDs24gYSBCRA0KZGJEaXNjb25uZWN0KG1vbmdvKQ0KDQojIHNpIG5vIGNhYmUgZXNwYWNpbyBlbiBsYSBtZW1vcmlhIHNlIHB1ZWRlIGVkaXRhciBlbCAnaGVhcCBzcGFjZScgcGFyYSBxdWUgYWNlcHRlIG1heW9yZXMgdGFtYcOxb3MNCm9wdGlvbnMoIGphdmEucGFyYW1ldGVycyA9ICItWG14MmciICkNCmBgYA0KDQojIyMgVGV4dG9zIGRlIGVqZW1wbG86DQoNCkVzdGUgZXMgdW4gIFtlbmxhY2VdKGh0dHA6Ly9ybWFya2Rvd24ucnN0dWRpby5jb20pIGRlIGVqZW1wbG8uDQoNClRyeSBleGVjdXRpbmcgdGhpcyBjaHVuayBieSBjbGlja2luZyB0aGUgKipSdW4qKiBidXR0b24gd2l0aGluIHRoZSBjaHVuayBvciBieSBwbGFjaW5nIHlvdXIgY3Vyc29yIGluc2lkZSBpdCBhbmQgcHJlc3NpbmcgKkN0cmwrU2hpZnQrRW50ZXIqLiANCg0KYGBge3J9DQpwbG90KGNhcnMpDQpgYGANCg0KQWRkIGEgbmV3IGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqSW5zZXJ0IENodW5rKiBidXR0b24gb24gdGhlIHRvb2xiYXIgb3IgYnkgcHJlc3NpbmcgKkN0cmwrQWx0K0kqLg0KDQpXaGVuIHlvdSBzYXZlIHRoZSBub3RlYm9vaywgYW4gSFRNTCBmaWxlIGNvbnRhaW5pbmcgdGhlIGNvZGUgYW5kIG91dHB1dCB3aWxsIGJlIHNhdmVkIGFsb25nc2lkZSBpdCAoY2xpY2sgdGhlICpQcmV2aWV3KiBidXR0b24gb3IgcHJlc3MgKkN0cmwrU2hpZnQrSyogdG8gcHJldmlldyB0aGUgSFRNTCBmaWxlKS4NCg0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlRhcmVhIDEuMiAtIEJhc2VzIGRlIERhdG9zIEF2YW56YWRhcyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCiMjIEJhc2VzIGRlIGRhdG9zIERvY3VtZW50YWxlcw0KUmFmYWVsIENhbHZvIHwgVmljdG9yIEZyYW5jaGlzIHwgSmF2aWVyIExldmlvDQotLS0gfCAtLS0gfCAtLS0NCjIwMTI3MzUwNi04IHwgMjAxMjczNTY2LTEgfCAyMDEyNzM1OTgtaw0KDQojIyMgUHJlZ3VudGFzOg0KDQotIL9DdeFsZXMgc29uIGxvcyA1IHBh7XNlcyBjb24gbG9zIG1lam9yZXMgdmlub3MgcmFua2VhZG9zIHByb21lZGlvPw0KLSC/Q3XhbGVzIHNvbiBsb3MgdOlybWlub3MgZGVzY3JpcHRpdm9zIGEgbG9zIHF1ZSBt4XMgc2UgaGFjZW4gYWx1c2nDs24/DQotIFBvc2libGVzIHJlbGFjaW9uZXMgZW50cmUgZWxsb3MuDQotIL9RdekgdOlybWlub3Mgc29uIGxvcyBt4XMgY29tdW5lcyBlbiAzIGNlcGFzIGRlIHZpbm8gZGlzdGludGFzPw0KLSBHZW5lcmFyIHVuYSBudWJlIGRlIHBhbGFicmFzIGNvbiBsb3MgTiB06XJtaW5vcyBt4XMgY29tdW5lcy4NCi0gv0VzIHBvc2libGUgaWRlbnRpZmljYXIgY2x1c3RlcnMgZGUgYWxn+m4gdGlwbyBlbnRyZSBsb3MgZGF0b3MgYW5hbGl6YWRvcz8NCg0KIyMjIERlc2Fycm9sbG86DQoNCkluaWNpYWxtZW50ZSBzZSBpbXBvcnRhIGxhIGxpYnJlcu1hIFJNb25nbyB5IG5vcyBjb25lY3RhbW9zIGEgbGEgQkQgIipCREEqIi4gUmVjb3JkYXIgcXVlIGVzdGEgZnVlIGNyZWFkYSBlbiBsYSBwYXJ0ZSAxLjEgZGUgcGEgdGFyZWEgY29uIGxhIGNvbGVjY2nzbiAiKndpbmVzX2NvbCoiLg0KYGBge3J9DQpsaWJyYXJ5KFJNb25nbykNCm1vbmdvID0gbW9uZ29EYkNvbm5lY3QoIkJEQSIsICJsb2NhbGhvc3QiLCAyNzAxNykNCm1vbmdvDQpgYGANClBhcmEgcHJvYmFyIHNpIGZ1bmNpb25hIHNlIHJlYWxpemFy4SB1bmEgY29uc3VsdGEgYSBsb3Mgdmlub3MgY29uIDEwMCBwdW50b3MuDQpgYGB7cn0NCmV4YW1wbGUgPSBkYkdldFF1ZXJ5KG1vbmdvLCAid2luZXNfY29sIiwgJ3sicG9pbnRzIjogIjEwMCJ9JykNCnByaW50KGV4YW1wbGVbImNvdW50cnkiXSwgcXVvdGUgPSBUUlVFLCByb3cubmFtZXMgPSBGQUxTRSkNCmBgYA0KDQoNCmBgYHtyfQ0KYGBgDQoNCg0KYGBge3J9DQojIGluc2VydGFyIHVuIGRvY3VtZW50bw0Kb3V0cHV0IDwtIGRiSW5zZXJ0RG9jdW1lbnQobW9uZ28sICJ3aW5lc19jb2wiLCAneyJmb28iOiAiYmFyIn0nKQ0KDQojIHF1ZXJpZXMNCiMgYnVzY2FyIGRvY3MgY29uIGF0cmlidXRvICdmb28nIGRlIHZhbG9yICdiYXInDQpvdXRwdXQgPC0gZGJHZXRRdWVyeShtb25nbywgInRlc3RfZGF0YSIsICd7ImZvbyI6ICJiYXIifScpDQpvdXRwdXQgPC0gZGJHZXRRdWVyeUZvcktleXMobW9uZ28sICJ0ZXN0X2RhdGEiLCANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICd7ImZvbyI6ICJiYXIifScsICd7ImZvbyI6IDF9JykNCiMgQ2VycmFyIGNvbmV4acOzbiBhIEJEDQpkYkRpc2Nvbm5lY3QobW9uZ28pDQoNCiMgc2kgbm8gY2FiZSBlc3BhY2lvIGVuIGxhIG1lbW9yaWEgc2UgcHVlZGUgZWRpdGFyIGVsICdoZWFwIHNwYWNlJyBwYXJhIHF1ZSBhY2VwdGUgbWF5b3JlcyB0YW1hw7Fvcw0Kb3B0aW9ucyggamF2YS5wYXJhbWV0ZXJzID0gIi1YbXgyZyIgKQ0KYGBgDQoNCiMjIyBUZXh0b3MgZGUgZWplbXBsbzoNCg0KRXN0ZSBlcyB1biAgW2VubGFjZV0oaHR0cDovL3JtYXJrZG93bi5yc3R1ZGlvLmNvbSkgZGUgZWplbXBsby4NCg0KVHJ5IGV4ZWN1dGluZyB0aGlzIGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqKlJ1bioqIGJ1dHRvbiB3aXRoaW4gdGhlIGNodW5rIG9yIGJ5IHBsYWNpbmcgeW91ciBjdXJzb3IgaW5zaWRlIGl0IGFuZCBwcmVzc2luZyAqQ3RybCtTaGlmdCtFbnRlciouIA0KDQpgYGB7cn0NCnBsb3QoY2FycykNCmBgYA0KDQpBZGQgYSBuZXcgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpJbnNlcnQgQ2h1bmsqIGJ1dHRvbiBvbiB0aGUgdG9vbGJhciBvciBieSBwcmVzc2luZyAqQ3RybCtBbHQrSSouDQoNCldoZW4geW91IHNhdmUgdGhlIG5vdGVib29rLCBhbiBIVE1MIGZpbGUgY29udGFpbmluZyB0aGUgY29kZSBhbmQgb3V0cHV0IHdpbGwgYmUgc2F2ZWQgYWxvbmdzaWRlIGl0IChjbGljayB0aGUgKlByZXZpZXcqIGJ1dHRvbiBvciBwcmVzcyAqQ3RybCtTaGlmdCtLKiB0byBwcmV2aWV3IHRoZSBIVE1MIGZpbGUpLg0KDQo=</div>
 
 
 
