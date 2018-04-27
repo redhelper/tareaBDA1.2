@@ -31,7 +31,7 @@ example = dbGetQuery(mongo, "wines_col", '{"country": "Italy"}')
 print(example, quote = TRUE, row.names = FALSE)
 ```
 
-### ¿Cuáles son los términos descriptivos a los que más se hacen alusión?
+### Generar una nube de palabras con los N términos más comunes.
 Se realiza una consulta similar a la inicial para obtener todas las descripciones:
 ```{r}
 library(tm)
@@ -118,7 +118,70 @@ freq.terms = findFreqTerms(dtm,lowfreq=80)
 freq.terms 
 ```
 
+```{r}
+library(wordcloud) 
+library(RColorBrewer) 
+```
+```{r}
+# Setear un valor semilla 
+set.seed(42) 
+# Nube de palabras en colores; palabras con frecuencia mínima de 70 
+wordcloud(names(freq), freq,min.freq=70,colors=brewer.pal(6,"Dark2")) 
+```
 
+## ¿Es posible identificar clusters de algún tipo entre los datos analizados?
+#### Es posible pero para valores muy grandes de "sparse". Mientras más grande, más aparecen y se observa que comienzan a aparecer a los **0.6**.
+```{r}
+dtmr2 = removeSparseTerms(dtm, sparse = 0.9) 
+inspect(dtmr2)
+```
+```{r}
+library(cluster) 
+distMatrix = dist(t(dtmr2), method = "manhattan")# probar con otros métodos 
+fit = hclust(distMatrix, method = "complete")# probar con otros métodos 
+# Dendrograma 
+plot(fit, cex=0.9, hang=-1, main = "Dendrograma de Clusters de Palabras") 
+rect.hclust(fit, k = 4, border="green") 
+```
+
+b) Clustering por particionamiento usando Kmeans 
+Se puede jugar con el nroClusters y al correrlo varias veces cambia
+```{r}
+library(fpc) 
+nroClusters = 3
+kfit = kmeans(distMatrix, nroClusters) 
+clusplot(as.matrix(distMatrix), kfit$cluster, color=T, shade=T, labels=2, lines=0, main="Clusters de términos") 
+```
+
+```{r}
+# Para chequear palabras representativas dentro de cada cluster
+for (i in 1: nroClusters) 
+{ 
+  cat(paste("cluster ", i, ": ", sep = "")) 
+  s = sort(kfit$centers[i,], decreasing = T) 
+  cat(names(s)[1:5], "\n") 
+} 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# todo esto es extra, lo dejé en caso de que sea util para las otras preguntas
 ### Gráficos
 ```{r}
 library(stringi) 
