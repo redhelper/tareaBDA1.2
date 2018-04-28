@@ -10,101 +10,61 @@ Rafael Calvo | Victor Franchis | Javier Levio
 
 ### Preguntas:
 
-- ?Cu?les son los 5 pa?ses con los mejores vinos rankeados promedio?
-- ?Cu?les son los t?rminos descriptivos a los que m?s se hacen alusi?n?
+- Cuales son los 5 países con los mejores vinos rankeados promedio?
+- Cuales son los terminos descriptivos a los que mas se hacen alusion?
 - Posibles relaciones entre ellos.
-- ?Qu? t?rminos son los m?s comunes en 3 cepas de vino distintas?
-- Generar una nube de palabras con los N t?rminos m?s comunes.
-- ?Es posible identificar clusters de alg?n tipo entre los datos analizados?
+- Qué terminos son los mas comunes en 3 cepas de vino distintas?
+- Generar una nube de palabras con los N terminos mas comunes.
+- Es posible identificar clusters de algun tipo entre los datos analizados?
 
 ### Desarrollo:
+*Importante! hubo consultas (pregunta 1) que solo funcionaron en mongo 3.4, favor de revisar su versión ya que la primera pregunta trajo problemasdebido a este factor.* 
 
-Inicialmente se importa la librer?a RMongo y nos conectamos a la BD "*BDA*". Recordar que esta fue creada en la parte 1.1 de pa tarea con la colecci?n "*wines_col*".
+Inicialmente se importa la libreria RMongo y nos conectamos a la BD "*BDA*". Recordar que esta fue creada en la parte 1.1 de la tarea con la coleccion "*wines_col*".
 ```{r}
 library(RMongo)
 mongo = mongoDbConnect("BDA", "localhost", 27017)
 mongo
 ```
-Para probar si funciona se realizar? una consulta a los vinos con 100 puntos.
+Para probar si funciona se realizara una consulta a los vinos de cepa *Tinta del Pais*.
 ```{r}
-example = dbGetQuery(mongo, "wines_col", '{"country": "Italy"}')
+example = dbGetQuery(mongo, "wines_col", '{variety: "Gelber Traminer"}')
 print(example, quote = TRUE, row.names = FALSE)
 ```
-###Â¿QuÃ© tÃ©rminos son los mÃ¡s comunes en 3 cepas de vino distintas?
-```{r}
-library(tm)
-collection = dbGetQuery(mongo, "wines_col", '{$or: [{variety: "Tinta del Pais" },{variety: "Gelber Traminer"},{variety: "Terrantez"}]}')
-descriptions = collection["description"][[1]]
-docs = Corpus(VectorSource(descriptions))
-# Crear un transformador de contenido llamado toSpace: 
-toSpace = content_transformer(function(x, pattern) {return (gsub(pattern, " ", x))}) 
-# Usar el transformador anterior para eliminar comas, dos puntos y otros... 
-docs = tm_map(docs, toSpace, "-") 
-docs = tm_map(docs, toSpace, ":") 
-docs = tm_map(docs, removePunctuation) 
-docs = tm_map(docs, toSpace, "'") 
-docs = tm_map(docs, toSpace, "'") 
-docs = tm_map(docs, toSpace, " - ") 
-docs = tm_map(docs, toSpace, "-") 
-docs = tm_map(docs, toSpace, "\n") 
-docs = tm_map(docs, toSpace, "   ") 
-docs = tm_map(docs, toSpace, "  ") 
-# Transformar a min?sculas 
-docs = tm_map(docs,content_transformer(tolower)) 
-# Eliminar d?gitos 
-docs = tm_map(docs, removeNumbers) 
-# Remover stopwords usando la lista est?ndar de tm 
-docs = tm_map(docs, removeWords, stopwords("english")) 
-# Borrar todos los espacios en blanco extra?os 
-docs = tm_map(docs, stripWhitespace) 
-dtm= DocumentTermMatrix(docs)
-dtm 
-# Contar la frecuencia de ocurrencia de cada palabra en el corpus
-# ...es decir sumar todas las filas y mostrar las sumas de cada columna 
-freq = colSums(as.matrix(dtm)) 
-# Ordenar las frecuencias
-ord = order(freq,decreasing=TRUE) 
-# Listar los t?rminos m?s frecuentes 
-freq[head(ord)]
-```
-###Â¿CuÃ¡les son los 5 paÃ­ses con mejores los vinos rankeados promedio?
+  
+#### - Cuales son los 5 paises con los mejores vinos rankeados promedio?
 
 ```{r}
-library(RMongo)
-mongo = mongoDbConnect("BDA","localhost",27017)
-output <- dbAggregate(mongo,"wines_col", c(
+# library(RMongo)
+# mongo = mongoDbConnect("BDA","localhost",27017)
+output = dbAggregate(mongo,"wines_col", c(
   '{$group: {_id: "$country", promedio: {$avg: "$points"}}}',
   '{$sort: {promedio: -1}}',
   '{$limit: 5}'
 ))
 print(output)
 ```
+#### - Cuales son los terminos descriptivos a los que mas se hacen alusion?
+#### - Posibles relaciones entre ellos.
 
-### Generar una nube de palabras con los N t?rminos m?s comunes.
-Se realiza una consulta similar a la inicial para obtener todas las descripciones:
+#### - Que terminos son los mas comunes en 3 cepas de vino distintas?
+*Nota: Se interpreta esta pregunta como el tomar 3 cepas a gusto y buscar los terminos mas comunes entre estas. De tener que analizarse estas por separado, la diferencia yace en tener que hacer 3 veces el mismo procedimiento, una vez por cada cepa a analizar.*
+
+Primero se realiza una query para obtener solo los datos de 3 tipos de cepas:
 ```{r}
 library(tm)
-collection = dbGetQuery(mongo, "wines_col", '')
-# todas las descripciones:
+collection = dbGetQuery(mongo, "wines_col", '{$or: [{variety: "Tinta del Pais"},{variety: "Gelber Traminer"},{variety: "Terrantez"}]}')
 descriptions = collection["description"][[1]]
-#descriptions
-# se juntan todas las descripciones en un solo gran texto
+```
+
+Posteriormente lo transformamos a un *corpus* tal como se vio en clases. Como en este caso no se estan leyendo archivos se hace mediante la funcion *VectorSource*:
+```{r}
 docs = Corpus(VectorSource(descriptions))
-docs
-
-
-
 ```
-
+Seguido de esto se crea un transformador de contenido llamado *toSpace* para eliminar todos los caracteres innecesarios que no correspondan a palabras, además de pasar cada letra a minúsculas y eliminar las *stopwords*:
 ```{r}
-# Inspeccionar el nuevo contenido
-writeLines(as.character(docs[[1]]))
-```
-
-```{r}
-# Crear un transformador de contenido llamado toSpace: 
 toSpace = content_transformer(function(x, pattern) {return (gsub(pattern, " ", x))}) 
-# Usar el transformador anterior para eliminar comas, dos puntos y otros... 
+# eliminacion de caracteres
 docs = tm_map(docs, toSpace, "-") 
 docs = tm_map(docs, toSpace, ":") 
 docs = tm_map(docs, removePunctuation) 
@@ -115,96 +75,116 @@ docs = tm_map(docs, toSpace, "-")
 docs = tm_map(docs, toSpace, "\n") 
 docs = tm_map(docs, toSpace, "   ") 
 docs = tm_map(docs, toSpace, "  ") 
-```
-```{r}
-# Inspeccionar el nuevo contenido
-writeLines(as.character(docs[[1]]))
-```
-```{r}
-# Transformar a min?sculas 
+# Transformar a minusculas 
 docs = tm_map(docs,content_transformer(tolower)) 
-# Eliminar d?gitos 
+# Eliminar digitos 
 docs = tm_map(docs, removeNumbers) 
-# Remover stopwords usando la lista est?ndar de tm 
+# Remover stopwords
 docs = tm_map(docs, removeWords, stopwords("english")) 
-# Borrar todos los espacios en blanco extra?os 
+# Espacios en blanco
 docs = tm_map(docs, stripWhitespace) 
-# Inspeccionar el nuevo contenido del documento antes visto 
-writeLines(as.character(docs[[1]])) 
+dtm= DocumentTermMatrix(docs)
+dtm 
 ```
-Usar el siguiente cuadro para revisar otras descripciones filtradas:
+
+Seguido de esto se procede a Contar la frecuencia de ocurrencia de cada palabra en el corpus, sumando las filas:
+
+```{r}
+freq = colSums(as.matrix(dtm)) 
+# Ordenar las frecuencias
+ord = order(freq,decreasing=TRUE) 
+# Listar los terminos mas frecuentes 
+freq[head(ord)]
+```
+
+De esto se desprende que las palabras mas repetidas son palate y blackberry.
+
+
+#### - Generar una nube de palabras con los N terminos mas comunes.
+Se realiza una consulta similar a la inicial para obtener todas las descripciones:
+```{r}
+library(tm)
+collection = dbGetQuery(mongo, "wines_col", '')
+descriptions = collection["description"][[1]]
+docs = Corpus(VectorSource(descriptions))
+docs
+```
+
+Se puede revisar cada descripcion con el siguiente comando:
+```{r}
+writeLines(as.character(docs[[2]]))
+```
+
+Se procede a limpiar de caracteres y palabras innecesarias igual que en preguntas anteriores:
+```{r}
+docs = tm_map(docs, toSpace, "-") 
+docs = tm_map(docs, toSpace, ":") 
+docs = tm_map(docs, removePunctuation) 
+docs = tm_map(docs, toSpace, "'") 
+docs = tm_map(docs, toSpace, "'") 
+docs = tm_map(docs, toSpace, " - ") 
+docs = tm_map(docs, toSpace, "-") 
+docs = tm_map(docs, toSpace, "\n") 
+docs = tm_map(docs, toSpace, "   ") 
+docs = tm_map(docs, toSpace, "  ")
+docs = tm_map(docs,content_transformer(tolower))
+docs = tm_map(docs, removeNumbers)
+docs = tm_map(docs, removeWords, stopwords("english"))
+docs = tm_map(docs, stripWhitespace) 
+```
+
+Nuevamente revisamos la descripcion para ver si hubo cambios:
 ```{r}
 # Inspeccionar el nuevo contenido
 writeLines(as.character(docs[[2]]))
 ```
 
-*por ahora no se usar? stemming, se pasa directo a la construcci?n de una matriz*
-
-Se construye una matriz de documentos y t?rminos:
+Por ahora no se considerara el uso de stemming, por lo que se pasara  directo a la construccion de una matriz de documentos y terminos:
 ```{r}
 dtm= DocumentTermMatrix(docs)
 dtm 
 ```
+Revisando el contenido se observa que hubo resultados:
 ```{r}
-# Revisando el contenido
+
 inspect(dtm[10:15,1:7]) 
 ```
-### An?lisis Cuantitativo de Texto 
+Se procede a realizar analisis de texto. Al sumar la frecuencia de ocurrencia de cada palabra en cada documento se obtiene una lista de frecuencia de palabras. De resultar todo correctamente se debería tener un largo de la lista igual al ancho de la matriz anterior:
 ```{r}
-# Contar la frecuencia de ocurrencia de cada palabra en el corpus
-# ...es decir sumar todas las filas y mostrar las sumas de cada columna 
-freq = colSums(as.matrix(dtm)) 
-# Validar que la dimensi?n de la variable freq es igual al n?mero de t?rminos
+freq = colSums(as.matrix(dtm))
 length(freq) 
 ```
-```{r}
-# Ordenar las frecuencias
-ord = order(freq,decreasing=TRUE) 
-# Listar los t?rminos m?s frecuentes 
-freq[head(ord)]
-```
-```{r}
-# Retornar todos los t?rminos presente m?s de 80 veces en el corpus entero 
-# Notar que el resultado est? ordenado alfab?ticamente, no por frecuencia 
-freq.terms = findFreqTerms(dtm,lowfreq=80) 
-freq.terms 
-```
+Procedemos finalmente a graficar los datos, para ello necesitamos de una semilla, con lo cual ya se obtiene la nube de palabras:
 
 ```{r}
 library(wordcloud) 
-library(RColorBrewer) 
-```
-```{r}
+library(RColorBrewer)
 # Setear un valor semilla 
 set.seed(42) 
 # Nube de palabras en colores; palabras con frecuencia m?nima de 70 
 wordcloud(names(freq), freq,min.freq=70,colors=brewer.pal(6,"Dark2")) 
 ```
 
-## ?Es posible identificar clusters de alg?n tipo entre los datos analizados?
-#### Es posible pero para valores muy grandes de "sparse". Mientras m?s grande, m?s aparecen y se observa que comienzan a aparecer a los **0.6**.
+
+#### Es posible identificar clusters de algun tipo entre los datos analizados?
+Es posible, pero al eliminar valores que no son muy usados la mayoría desaparece. Para respetar el proceso visto en clases se hará este proceso, pero con valores muy grandes de "sparse". se observa que comienzan a aparecer a los **0.6**, se usará *0.9* para tener suficientes datos.
+
 ```{r}
 dtmr2 = removeSparseTerms(dtm, sparse = 0.9) 
 inspect(dtmr2)
 ```
-```{r}
-library(cluster) 
-distMatrix = dist(t(dtmr2), method = "manhattan")# probar con otros m?todos 
-fit = hclust(distMatrix, method = "complete")# probar con otros m?todos 
-# Dendrograma 
-plot(fit, cex=0.9, hang=-1, main = "Dendrograma de Clusters de Palabras") 
-rect.hclust(fit, k = 4, border="green") 
-```
 
-b) Clustering por particionamiento usando Kmeans 
-Se puede jugar con el nroClusters y al correrlo varias veces cambia
+
+Se procede entonces a buscar clustering por particionamiento. Esto se hará usando Kmeans con un numero de clusters de 3:
 ```{r}
 library(fpc) 
 nroClusters = 3
 kfit = kmeans(distMatrix, nroClusters) 
-clusplot(as.matrix(distMatrix), kfit$cluster, color=T, shade=T, labels=2, lines=0, main="Clusters de t?rminos") 
+clusplot(as.matrix(distMatrix), kfit$cluster, color=T, shade=T, labels=2, lines=0, main="Clusters de terminos") 
 ```
+Evidentemente la palabra mas usada es vino, lo cual era de esperarse dado el contexto.
 
+Como adicional se revisan las palabras representativas dentro de cada uno de los clusters: 
 ```{r}
 # Para chequear palabras representativas dentro de cada cluster
 for (i in 1: nroClusters) 
@@ -216,6 +196,7 @@ for (i in 1: nroClusters)
 ```
 
 
+> Nota: Este documento se encuentra escrito sin tildes ni caracteres especiales a proposito, con el fin de evitar problemas de formato.
 
 
 
@@ -225,16 +206,8 @@ for (i in 1: nroClusters)
 
 
 
-
-
-
-
-
-
-
-
-# todo esto es extra, lo dej? en caso de que sea util para las otras preguntas
-### Gr?ficos
+# todo esto es extra, lo dejo en caso de que sea util para las otras preguntas
+### Graficos
 ```{r}
 library(stringi) 
 library(ggplot2) 
@@ -256,66 +229,18 @@ p
 ```{r}
 # De ser necesario, seleccionar repositorio: BioC software, para esta secci?n 
 # https://www.bioconductor.org/packages/release/bioc/html/graph.html
-source("https://bioconductor.org/biocLite.R")
-biocLite("graph")
-source("https://bioconductor.org/biocLite.R")
-biocLite("Rgraphviz")
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("graph")
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("Rgraphviz")
 
 ```
 ```{r}
 #library(graph) 
-library(Rgraphviz) 
+#library(Rgraphviz) 
 # Dibujar relaciones entre t?rminos que tengan una frecuencia no menor a 160 
-freq.terms = findFreqTerms(dtm,lowfreq=160) 
-plot(dtm, term = freq.terms, corThreshold = 0.12, weighting = T) 
+#freq.terms = findFreqTerms(dtm,lowfreq=160) 
+#plot(dtm, term = freq.terms, corThreshold = 0.12, weighting = T) 
 ```
-
-```{r}
-library(wordcloud) 
-library(RColorBrewer) 
-```
-```{r}
-# Setear un valor semilla 
-set.seed(42) 
-# Nube de palabras en colores; palabras con frecuencia m?nima de 70 
-wordcloud(names(freq), freq,min.freq=70,colors=brewer.pal(6,"Dark2")) 
-```
-
-### Clustering
-#### hay que jugar con el "sparse" para cambiar la cantidad de palabras, mientras m?s grande, m?s aparecen
-```{r}
-dtmr2 = removeSparseTerms(dtm, sparse = 0.8) 
-inspect(dtmr2)
-```
-```{r}
-library(cluster) 
-distMatrix = dist(t(dtmr2), method = "manhattan")# probar con otros m?todos 
-fit = hclust(distMatrix, method = "complete")# probar con otros m?todos 
-# Dendrograma 
-plot(fit, cex=0.9, hang=-1, main = "Dendrograma de Clusters de Palabras") 
-rect.hclust(fit, k = 4, border="green") 
-```
-
-b) Clustering por particionamiento usando Kmeans 
-Se puede jugar con el nroClusters y al correrlo varias veces cambia
-```{r}
-library(fpc) 
-nroClusters = 3
-kfit = kmeans(distMatrix, nroClusters) 
-clusplot(as.matrix(distMatrix), kfit$cluster, color=T, shade=T, labels=2, lines=0) 
-```
-
-```{r}
-# Para chequear palabras representativas dentro de cada cluster
-for (i in 1: nroClusters) 
-{ 
-  cat(paste("cluster ", i, ": ", sep = "")) 
-  s = sort(kfit$centers[i,], decreasing = T) 
-  cat(names(s)[1:5], "\n") 
-} 
-```
-
-
-
 
 
